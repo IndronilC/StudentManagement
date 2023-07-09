@@ -1,0 +1,44 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.0.8'
+	id 'io.spring.dependency-management' version '1.1.0'
+}
+
+group = 'com.kanini'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// using new @Observed on class and enaabled @ObservedAspect
+	implementation "org.springframework.boot:spring-boot-starter-aop"
+	// enabled endpoint and expose metrics
+	implementation "org.springframework.boot:spring-boot-starter-actuator"
+	// as we are using Spring Data JPA for data layer implementation
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// the below library allows us to use Spring based Rest features in presentation layer
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// the below is to resolve error for Spring based observability
+	implementation group: 'io.micrometer', name: 'micrometer-observation-test', version: '1.10.8'
+	implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
