@@ -3,6 +3,8 @@ package com.kanini.studentmanagement.integration.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kanini.studentmanagement.dto.request.StudentRequest;
+import com.kanini.studentmanagement.dto.response.StudentResponse;
+import com.kanini.studentmanagement.model.business.service.StudentService;
 import com.kanini.studentmanagement.model.data.repository.StudentManagementRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +20,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -27,7 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *         DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class }) }</em>
  *     has been implemented to ensure that the {@code @TestExecutionListeners} does not look
  *     for {@code MicroMeterTestExecutionListeners} for activating Spring observability based on and from
- *     <em>Spring boot 3.0.0+</em></p>
+ *     <em>Spring boot 3.0.0+</em>
+ *  </p>
  */
 
 @TestExecutionListeners(listeners = { DependencyInjectionTestExecutionListener.class,
@@ -42,16 +48,23 @@ public class StudentManagementControllerTest {
     ObjectMapper objectMapper;
 
     @Autowired
+    StudentService studentService;
+
+    @Autowired
     StudentManagementRepository studentManagementRepository;
 
     @Autowired
     StudentRequest studentRequest;
 
+    @Autowired
+    StudentResponse studentResponse;
+
     @BeforeEach
     public void setup(){
-        // given or pre - condtion
-         studentRequest = new StudentRequest();
-        studentManagementRepository.deleteAll();
+       // given or pre - condtion
+       studentRequest = new StudentRequest();
+       studentResponse = createStubOfStudentResponse();
+       studentManagementRepository.deleteAll();
 
     }
 
@@ -63,17 +76,50 @@ public class StudentManagementControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(getContent(studentRequest));
-
         ResultActions response = mockMvc.perform(mockRequest);
+
         // then - verify the result with the new bunch of assert statements.
         response.andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void givenValidStudentObject_whenRegisterStudentSuccess_thenReturnSavedStudentFromDatabase() throws Exception {
+
+        // when the operation we are going to check is performed
+        MockHttpServletRequestBuilder mockRequest = post("/api/v1/student/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(getContent(studentRequest));
+        ResultActions response = mockMvc.perform(mockRequest);
+
+        // then - verify the result with the new bunch of assert statements.
+        response.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", notNullValue()))
+                .andExpect(jsonPath("$.studentName", is(studentResponse.getStudentName())))
+                .andExpect(jsonPath("$.departnmentName", is(studentResponse.getDepartmentName())))
+                .andExpect(jsonPath("$.course", is(studentResponse.getCourse())))
+                .andExpect(jsonPath("$.specialization", is(studentResponse.getSpecialization())))
+                .andExpect(jsonPath("$.percentage", is(studentResponse.getPercentage())));
 
     }
 
     private String getContent(StudentRequest studentRequest)
             throws JsonProcessingException {
         return objectMapper.writeValueAsString(studentRequest);
+    }
+
+    private StudentResponse createStubOfStudentResponse() {
+        StudentResponse localStudentResponse = StudentResponse.builder()
+                .studentName("Indronil Chawkroborty")
+                .departmentName("Information Technology")
+                .course("Ecommerce")
+                .specialization("Spring boot")
+                .course("Spring Boot 3.1.11")
+                .percentage("80%")
+                .build();
+        return studentResponse;
     }
 
 }

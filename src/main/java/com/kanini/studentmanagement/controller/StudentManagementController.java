@@ -1,6 +1,7 @@
 package com.kanini.studentmanagement.controller;
 
 import com.kanini.studentmanagement.dto.request.StudentRequest;
+import com.kanini.studentmanagement.dto.response.StudentResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +18,8 @@ public class StudentManagementController {
 
     @PostMapping("/student/register")
     @ResponseStatus(HttpStatus.OK)
-    public void registerStudent(@RequestBody StudentRequest studentRequest){
-
+    public StudentResponse registerStudent(@RequestBody StudentRequest studentRequest){
+        return new StudentResponse();
     }
 
 }
