@@ -1,12 +1,17 @@
 package com.kanini.studentmanagement.integration.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kanini.studentmanagement.dto.request.StudentRequest;
 import com.kanini.studentmanagement.dto.response.StudentResponse;
 import com.kanini.studentmanagement.model.business.service.StudentService;
 import com.kanini.studentmanagement.model.data.repository.StudentManagementRepository;
+
+import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentRequest;
+import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentResponse;
+import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.getContent;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -40,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class StudentManagementControllerTest {
+public class StudentManagementControllerIntegrationTest {
     @Autowired
     MockMvc mockMvc;
 
@@ -61,28 +66,34 @@ public class StudentManagementControllerTest {
 
     @BeforeEach
     public void setup(){
-       // given or pre - condtion
-       studentRequest = new StudentRequest();
+       // given or pre - condtion -> when we populate the request and response stubs
+       studentRequest = createStubOfStudentRequest();
        studentResponse = createStubOfStudentResponse();
        studentManagementRepository.deleteAll();
 
     }
 
+    @DisplayName("This Integration Test will check whether the Rest Endpoint for Student Registration has been actually" +
+            "created in the Presentation Layer for actual Rest Method Call")
     @Test
     public void givenStudentObject_whenRegisterStudentEndPointIsValid_thenReceiveOkAsStatus() throws Exception {
 
-        // when the operation we are going to check is performed
+        // when the operation we are going to check is performed -> which is a post call for Student Registration
         MockHttpServletRequestBuilder mockRequest = post("/api/v1/student/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(getContent(studentRequest));
+                .content(getContent(objectMapper, studentRequest));
         ResultActions response = mockMvc.perform(mockRequest);
 
-        // then - verify the result with the new bunch of assert statements.
+        // then - verify the result with the new bunch of assert statements whether we receiving a success status
+        // i.e whether the API end point is available for the actual call for Registration,
+        // this being a TDD.
         response.andDo(print())
                 .andExpect(status().isOk());
     }
 
+    @DisplayName("This is a TDD level integration test case which we will allow us to assemble and implement all the" +
+            "Components and methods which will allow registration of a new student")
     @Test
     public void givenValidStudentObject_whenRegisterStudentSuccess_thenReturnSavedStudentFromDatabase() throws Exception {
 
@@ -90,7 +101,7 @@ public class StudentManagementControllerTest {
         MockHttpServletRequestBuilder mockRequest = post("/api/v1/student/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(getContent(studentRequest));
+                .content(getContent(objectMapper, studentRequest));
         ResultActions response = mockMvc.perform(mockRequest);
 
         // then - verify the result with the new bunch of assert statements.
@@ -105,21 +116,5 @@ public class StudentManagementControllerTest {
 
     }
 
-    private String getContent(StudentRequest studentRequest)
-            throws JsonProcessingException {
-        return objectMapper.writeValueAsString(studentRequest);
-    }
-
-    private StudentResponse createStubOfStudentResponse() {
-        StudentResponse localStudentResponse = StudentResponse.builder()
-                .studentName("Indronil Chawkroborty")
-                .departmentName("Information Technology")
-                .course("Ecommerce")
-                .specialization("Spring boot")
-                .course("Spring Boot 3.1.11")
-                .percentage("80%")
-                .build();
-        return studentResponse;
-    }
 
 }

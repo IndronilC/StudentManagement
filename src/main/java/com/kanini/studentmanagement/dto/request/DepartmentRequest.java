@@ -8,17 +8,13 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.stereotype.Component;
 
-
+@Component
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class StudentRequest {
-    private String studentName;
-    private String course;
-    private String specialization;
-    private String percentage;
-    private DepartmentRequest departmentRequest;
+public class DepartmentRequest {
+    String departmentName;
 }
