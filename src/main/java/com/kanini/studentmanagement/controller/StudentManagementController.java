@@ -2,8 +2,8 @@ package com.kanini.studentmanagement.controller;
 
 import com.kanini.studentmanagement.dto.request.StudentRequest;
 import com.kanini.studentmanagement.dto.response.StudentResponse;
-import com.kanini.studentmanagement.model.business.service.StudentService;
-import com.kanini.studentmanagement.model.dto.intermediate.DepartmentDTO;
+import com.kanini.studentmanagement.model.business.service.StudentManagementService;
+import com.kanini.studentmanagement.model.business.sexception.StudentBusinessException;
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudentManagementController {
 
     @Autowired
-    StudentService studentService;
+    StudentManagementService studentService;
 
     @Autowired
     ModelMapper modelMapper;
@@ -30,7 +30,12 @@ public class StudentManagementController {
     @ResponseStatus(HttpStatus.OK)
     public StudentResponse registerStudent(@RequestBody StudentRequest studentRequest){
         StudentDTO studentDTO = mapToStudentDTOFromRequest(studentRequest);
-        StudentDTO savedStudentDTO = studentService.registerStudent(studentDTO);
+        StudentDTO savedStudentDTO = null;
+        try {
+            savedStudentDTO = studentService.registerStudent(studentDTO);
+        } catch (StudentBusinessException e) {
+            throw new RuntimeException(e);
+        }
         StudentResponse studentResponse = mapToResponseFromStudentDTO(savedStudentDTO);
         return studentResponse;
     }

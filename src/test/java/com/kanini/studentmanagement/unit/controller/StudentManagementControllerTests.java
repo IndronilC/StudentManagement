@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kanini.studentmanagement.controller.StudentManagementController;
 import com.kanini.studentmanagement.dto.request.StudentRequest;
 import com.kanini.studentmanagement.dto.response.StudentResponse;
-import com.kanini.studentmanagement.model.business.service.StudentService;
+import com.kanini.studentmanagement.model.business.service.StudentManagementService;
+import com.kanini.studentmanagement.model.business.sexception.StudentBusinessException;
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
 
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.getContent;
@@ -49,7 +50,7 @@ public class StudentManagementControllerTests {
     @MockBean
     ModelMapper modelMapper;
     @MockBean
-    StudentService studentService;
+    StudentManagementService studentService;
     @InjectMocks
     StudentManagementController studentManagementController;
     StudentRequest studentRequest;
@@ -73,7 +74,11 @@ public class StudentManagementControllerTests {
         when(modelMapper.map(studentDTO, StudentResponse.class)).thenReturn(studentResponse);
         // given also that we make a call to the registerCustomer of mockbean of
         // customerOnboardingService with the stubbed CustomerDTO
-        when(studentService.registerStudent(studentDTO)).thenReturn(studentDTO);
+        try {
+            when(studentService.registerStudent(studentDTO)).thenReturn(studentDTO);
+        } catch (StudentBusinessException e) {
+            throw new RuntimeException(e);
+        }
 
         // when the operation we are going to check is performed
         MockHttpServletRequestBuilder mockRequest = post("/api/v1/student/register")

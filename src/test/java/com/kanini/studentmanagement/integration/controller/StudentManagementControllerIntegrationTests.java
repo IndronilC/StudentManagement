@@ -4,7 +4,7 @@ package com.kanini.studentmanagement.integration.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kanini.studentmanagement.dto.request.StudentRequest;
 import com.kanini.studentmanagement.dto.response.StudentResponse;
-import com.kanini.studentmanagement.model.business.service.StudentService;
+import com.kanini.studentmanagement.model.business.service.StudentManagementService;
 import com.kanini.studentmanagement.model.data.repository.StudentManagementRepository;
 
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentRequest;
@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class StudentManagementControllerIntegrationTest {
+public class StudentManagementControllerIntegrationTests {
     @Autowired
     MockMvc mockMvc;
 
@@ -53,7 +53,7 @@ public class StudentManagementControllerIntegrationTest {
     ObjectMapper objectMapper;
 
     @Autowired
-    StudentService studentService;
+    StudentManagementService studentService;
 
     @Autowired
     StudentManagementRepository studentManagementRepository;
