@@ -32,8 +32,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	// the below is to resolve error for Spring based observability
 	implementation group: 'io.micrometer', name: 'micrometer-observation-test', version: '1.10.8'
-	implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
-	// adding Model mapper library for data mapping between Request to DTO to Entity and vice versa till Response
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+		// adding Model mapper library for data mapping between Request to DTO to Entity and vice versa till Response
 	implementation 'org.modelmapper:modelmapper:3.0.0'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'

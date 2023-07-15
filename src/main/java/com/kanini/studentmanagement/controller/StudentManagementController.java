@@ -3,6 +3,7 @@ package com.kanini.studentmanagement.controller;
 import com.kanini.studentmanagement.dto.request.StudentRequest;
 import com.kanini.studentmanagement.dto.response.StudentResponse;
 import com.kanini.studentmanagement.model.business.service.StudentService;
+import com.kanini.studentmanagement.model.dto.intermediate.DepartmentDTO;
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -30,12 +31,13 @@ public class StudentManagementController {
     public StudentResponse registerStudent(@RequestBody StudentRequest studentRequest){
         StudentDTO studentDTO = mapToStudentDTOFromRequest(studentRequest);
         StudentDTO savedStudentDTO = studentService.registerStudent(studentDTO);
-        StudentResponse studentResponse = mapToResponseFromStudentDTO(studentDTO);
-        return new StudentResponse();
+        StudentResponse studentResponse = mapToResponseFromStudentDTO(savedStudentDTO);
+        return studentResponse;
     }
 
     private StudentResponse mapToResponseFromStudentDTO(StudentDTO studentDTO) {
         StudentResponse studentResponse = modelMapper.map(studentDTO, StudentResponse.class);
+        studentResponse.setDepartmentName(studentDTO.getDepartmentDTO().getDepartmentName());
         return studentResponse;
     }
 

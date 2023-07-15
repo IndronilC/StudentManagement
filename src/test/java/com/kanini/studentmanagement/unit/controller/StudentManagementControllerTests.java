@@ -1,6 +1,5 @@
 package com.kanini.studentmanagement.unit.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kanini.studentmanagement.controller.StudentManagementController;
 import com.kanini.studentmanagement.dto.request.StudentRequest;
@@ -12,6 +11,7 @@ import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentRequest;
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentResponse;
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentDTO;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.when;
@@ -23,8 +23,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.mockito.InjectMocks;
 import org.modelmapper.ModelMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -86,10 +88,21 @@ public class StudentManagementControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", notNullValue()))
                 .andExpect(jsonPath("$.studentName", is(studentResponse.getStudentName())))
-                .andExpect(jsonPath("$.departnmentName", is(studentResponse.getDepartmentName())))
+                .andExpect(jsonPath("$.departmentName", is(studentResponse.getDepartmentName())))
                 .andExpect(jsonPath("$.course", is(studentResponse.getCourse())))
                 .andExpect(jsonPath("$.specialization", is(studentResponse.getSpecialization())))
                 .andExpect(jsonPath("$.percentage", is(studentResponse.getPercentage())));
+
+        assertThatStudentRequestAndResponseHasSameValuesInFields();
+    }
+
+    private void assertThatStudentRequestAndResponseHasSameValuesInFields() {
+        assertEquals(studentRequest.getStudentName(), studentResponse.getStudentName());
+        assertEquals(studentRequest.getDepartmentRequest()
+                .getDepartmentName(), studentResponse.getDepartmentName());
+        assertEquals(studentRequest.getCourse(), studentResponse.getCourse());
+        assertEquals(studentRequest.getPercentage(), studentResponse.getPercentage());
+        assertEquals(studentRequest.getSpecialization(), studentResponse.getSpecialization());
     }
 
 }

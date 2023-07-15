@@ -18,10 +18,9 @@ public class StudentManagementTestUtil {
     public static StudentResponse createStubOfStudentResponse() {
         StudentResponse localStudentResponse = StudentResponse.builder()
                 .studentName("Indronil Chawkroborty")
-                .departmentName("Information Technology")
-                .course("Ecommerce")
-                .specialization("Spring boot")
-                .course("Spring Boot 3.1.11")
+                .departmentName("Mathematics Department")
+                .course("Maths")
+                .specialization("Relational Calculus")
                 .percentage("80%")
                 .build();
         return localStudentResponse;
