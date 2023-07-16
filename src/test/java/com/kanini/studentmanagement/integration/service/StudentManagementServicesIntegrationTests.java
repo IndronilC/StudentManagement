@@ -1,9 +1,7 @@
 package com.kanini.studentmanagement.integration.service;
 
 import com.kanini.studentmanagement.model.business.service.StudentManagementService;
-import com.kanini.studentmanagement.model.business.sexception.StudentBusinessException;
-import com.kanini.studentmanagement.model.data.entity.Department;
-import com.kanini.studentmanagement.model.data.entity.Student;
+import com.kanini.studentmanagement.model.data.repository.StudentManagementRepository;
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
 
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentDTO;
@@ -24,18 +22,21 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @TestExecutionListeners(listeners = { DependencyInjectionTestExecutionListener.class,
-        DirtiesContextTestExecutionListener.class})
+        DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class StudentManagementServicesIntegrationTests {
     @Autowired
     StudentManagementService studentManagementService;
-
+    @Autowired
+    StudentManagementRepository studentManagementRepository;
     @Autowired
     StudentDTO studentDTO;
     @BeforeEach
     public void setUp(){
         studentDTO = createStubOfStudentDTO();
+        studentManagementRepository.deleteAll();
     }
+
     @DisplayName("This test is to check the happy path for Student Registration from the Service Layer" +
             "to the Database through Repository Layer as a part of Unit Integration Test of the Service +" +
             " Repository + Database Resource")

@@ -2,6 +2,7 @@ package com.kanini.studentmanagement.model.business.service.impl;
 
 import com.kanini.studentmanagement.model.business.service.StudentManagementService;
 import com.kanini.studentmanagement.model.business.sexception.StudentBusinessException;
+import com.kanini.studentmanagement.model.data.entity.Department;
 import com.kanini.studentmanagement.model.data.entity.Student;
 import com.kanini.studentmanagement.model.data.repository.StudentManagementRepository;
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
@@ -10,6 +11,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 @Slf4j
 public class StudentServiceImpl implements StudentManagementService {
@@ -17,6 +21,8 @@ public class StudentServiceImpl implements StudentManagementService {
     StudentManagementRepository studentManagementRepository;
     @Autowired
     Student student;
+    @Autowired
+    Department department;
     @Autowired
     ModelMapper modelMapper;
 
@@ -42,6 +48,11 @@ public class StudentServiceImpl implements StudentManagementService {
 
     private Student populateStudentEntityFromDTO(StudentDTO studentDTO) {
       Student localStudent = modelMapper.map(studentDTO, Student.class);
+      department = modelMapper.map(studentDTO.getDepartmentDTO(), Department.class);
+      Set<Department> setOfDepartments = new HashSet<Department>();
+      setOfDepartments.add(department);
+      localStudent.setDepartments(setOfDepartments);
+      department.setStudent(localStudent);
       logStudentDTOConversionToStudentEntity(studentDTO, localStudent);
       return localStudent;
     }

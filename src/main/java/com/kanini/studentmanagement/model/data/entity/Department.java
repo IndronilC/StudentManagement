@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -30,12 +31,14 @@ import java.util.UUID;
  * </p>
  * @author - Indronil Chawkroborty
   */
+
+@Component
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-@ToString
+@EqualsAndHashCode(exclude = "student", callSuper = false)
+@ToString(exclude = {"student"})
 @Table(name = "department")
 public class Department extends Audit implements Serializable {
     @Id
@@ -50,5 +53,4 @@ public class Department extends Audit implements Serializable {
     private Student student;
     @Version
     private Integer version;
-
 }
