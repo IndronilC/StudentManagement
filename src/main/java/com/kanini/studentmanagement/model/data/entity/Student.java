@@ -7,6 +7,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import jakarta.persistence.OneToMany;
@@ -40,7 +42,7 @@ import java.util.UUID;
 @EqualsAndHashCode(exclude = "departments", callSuper = false)
 @ToString(exclude = {"departments"})
 @Table(name = "student")
-public class Student extends Audit implements Serializable {
+public class Student implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "student_id", nullable = false)
@@ -59,4 +61,10 @@ public class Student extends Audit implements Serializable {
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
     private Set<Department> departments;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "student_audit_id", referencedColumnName = "audit_id")
+    private Audit audit;
+
+
 }

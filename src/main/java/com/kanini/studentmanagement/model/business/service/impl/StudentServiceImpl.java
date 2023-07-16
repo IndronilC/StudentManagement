@@ -1,9 +1,12 @@
 package com.kanini.studentmanagement.model.business.service.impl;
 
+import com.kanini.studentmanagement.common.util.StudentManagementUtil;
 import com.kanini.studentmanagement.model.business.service.StudentManagementService;
 import com.kanini.studentmanagement.model.business.sexception.StudentBusinessException;
+import com.kanini.studentmanagement.model.data.entity.Audit;
 import com.kanini.studentmanagement.model.data.entity.Department;
 import com.kanini.studentmanagement.model.data.entity.Student;
+import com.kanini.studentmanagement.model.data.repository.AuditRepository;
 import com.kanini.studentmanagement.model.data.repository.StudentManagementRepository;
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -24,7 +28,13 @@ public class StudentServiceImpl implements StudentManagementService {
     @Autowired
     Department department;
     @Autowired
+    AuditRepository auditRepository;
+    @Autowired
     ModelMapper modelMapper;
+
+    private Audit audit = new Audit();
+
+    private static int auditCreationCounter = 0;
 
 
     @Override
@@ -48,13 +58,56 @@ public class StudentServiceImpl implements StudentManagementService {
 
     private Student populateStudentEntityFromDTO(StudentDTO studentDTO) {
       Student localStudent = modelMapper.map(studentDTO, Student.class);
-      department = modelMapper.map(studentDTO.getDepartmentDTO(), Department.class);
-      Set<Department> setOfDepartments = new HashSet<Department>();
-      setOfDepartments.add(department);
-      localStudent.setDepartments(setOfDepartments);
-      department.setStudent(localStudent);
+      createOneToManyStudentDepartmentRelationship(studentDTO, localStudent);
+      addAuditDataToStudentAndDepartmentEntities(localStudent);
       logStudentDTOConversionToStudentEntity(studentDTO, localStudent);
       return localStudent;
+    }
+
+    private void addAuditDataToStudentAndDepartmentEntities(Student localStudent) {
+        Optional<Department> localOptionalDepartment = getDepartment(localStudent);
+        addAuditDataMembersToDepartmentEntity(localOptionalDepartment);
+        addAuditDataMembersToStudentEntity(localStudent);
+    }
+
+    private  Optional<Department> getDepartment(Student localStudent) {
+        Optional<Department> localOptionalDepartment = localStudent.getDepartments().stream().findFirst();
+        return localOptionalDepartment;
+    }
+
+    private void addAuditDataMembersToStudentEntity(Student localStudent) {
+        Audit audit = createAuditingDataForEntities();
+        localStudent.setAudit(audit);
+        audit.setStudent(student);
+    }
+
+    private Audit createAuditingDataForEntities() {
+        if(auditCreationCounter > 1){
+            return audit;
+        }
+        audit = new Audit();
+        audit.setCreatedBy(StudentManagementUtil.setCreatingUser());
+        audit.setUpdatedAt(StudentManagementUtil.createCurrentDateTime());
+        audit.setUpdatedAt(StudentManagementUtil.createCurrentDateTime());
+        Audit savedAudit = auditRepository.save(audit);
+        return audit;
+    }
+
+    private void addAuditDataMembersToDepartmentEntity(Optional<Department> localOptionalDepartment) {
+        Department localDepartment = localOptionalDepartment.get();
+        Audit audit = createAuditingDataForEntities();
+        localDepartment.setAudit(audit);
+        audit.setDepartment(department);
+    }
+
+
+
+    private void createOneToManyStudentDepartmentRelationship(StudentDTO studentDTO, Student localStudent) {
+        department = modelMapper.map(studentDTO.getDepartmentDTO(), Department.class);
+        Set<Department> setOfDepartments = new HashSet<Department>();
+        setOfDepartments.add(department);
+        localStudent.setDepartments(setOfDepartments);
+        department.setStudent(localStudent);
     }
 
     private static void logStudentDTOConversionToStudentEntity(

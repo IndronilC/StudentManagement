@@ -1,5 +1,6 @@
 package com.kanini.studentmanagement.model.data.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -40,7 +42,7 @@ import java.util.UUID;
 @EqualsAndHashCode(exclude = "student", callSuper = false)
 @ToString(exclude = {"student"})
 @Table(name = "department")
-public class Department extends Audit implements Serializable {
+public class Department implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "department_id", nullable = false)
@@ -53,4 +55,9 @@ public class Department extends Audit implements Serializable {
     private Student student;
     @Version
     private Integer version;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "department_audit_id", referencedColumnName = "audit_id")
+    private Audit audit;
+
 }
