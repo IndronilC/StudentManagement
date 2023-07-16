@@ -23,8 +23,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-@ToString
+@EqualsAndHashCode(exclude = {"student","department"}, callSuper = false)
+@ToString(exclude = {"student", "department"})
 @Table(name = "audit")
 public class Audit implements Serializable {
     @Id

@@ -9,6 +9,7 @@ import com.kanini.studentmanagement.model.data.entity.Student;
 import com.kanini.studentmanagement.model.data.repository.AuditRepository;
 import com.kanini.studentmanagement.model.data.repository.StudentManagementRepository;
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
+
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import org.springframework.transaction.annotation.Transactional;
+import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 
 @Service
 @Slf4j
@@ -32,16 +36,23 @@ public class StudentServiceImpl implements StudentManagementService {
     @Autowired
     ModelMapper modelMapper;
 
-    private Audit audit = new Audit();
+    @Autowired
+    private Audit audit;
 
     private static int auditCreationCounter = 0;
 
 
+    @Transactional(propagation = REQUIRED)
     @Override
     public StudentDTO registerStudent(StudentDTO studentDTO) throws StudentBusinessException {
-        student = populateStudentEntityFromDTO(studentDTO);
-        Student savedStudent = studentManagementRepository.save(student);
-        StudentDTO savedStudentDTO = populateStudentDTOFromEntity(savedStudent);
+        StudentDTO savedStudentDTO = null;
+        try {
+            student = populateStudentEntityFromDTO(studentDTO);
+            Student savedStudent = studentManagementRepository.save(student);
+            savedStudentDTO = populateStudentDTOFromEntity(savedStudent);
+        } catch (Exception e) {
+            throw new StudentBusinessException(e.getMessage(), e.getCause());
+        }
         return savedStudentDTO;
     }
 
@@ -82,12 +93,13 @@ public class StudentServiceImpl implements StudentManagementService {
     }
 
     private Audit createAuditingDataForEntities() {
-        if(auditCreationCounter > 1){
+        if(auditCreationCounter >= 1){
             return audit;
         }
+        auditCreationCounter++;
         audit = new Audit();
         audit.setCreatedBy(StudentManagementUtil.setCreatingUser());
-        audit.setUpdatedAt(StudentManagementUtil.createCurrentDateTime());
+        audit.setCreatedAt(StudentManagementUtil.createCurrentDateTime());
         audit.setUpdatedAt(StudentManagementUtil.createCurrentDateTime());
         Audit savedAudit = auditRepository.save(audit);
         return audit;
