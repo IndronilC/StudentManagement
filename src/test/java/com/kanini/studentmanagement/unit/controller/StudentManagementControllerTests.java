@@ -6,12 +6,15 @@ import com.kanini.studentmanagement.dto.request.StudentRequest;
 import com.kanini.studentmanagement.dto.response.StudentResponse;
 import com.kanini.studentmanagement.model.business.service.StudentManagementService;
 import com.kanini.studentmanagement.model.business.sexception.StudentBusinessException;
+import com.kanini.studentmanagement.model.dto.intermediate.DepartmentDTO;
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
 
+import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.assertThatResponseObjectHasValidData;
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.getContent;
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentRequest;
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentResponse;
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentDTO;
+import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.assertThatStudentRequestAndResponseHasSameValuesInFields;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -24,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.mockito.InjectMocks;
 import org.modelmapper.ModelMapper;
 
@@ -55,6 +58,7 @@ public class StudentManagementControllerTests {
     StudentManagementController studentManagementController;
     StudentRequest studentRequest;
     StudentDTO studentDTO;
+    DepartmentDTO departmentDTO;
     StudentResponse studentResponse;
     @Autowired
     private ObjectMapper objectMapper;
@@ -62,7 +66,14 @@ public class StudentManagementControllerTests {
     public void setup(){
         studentRequest = createStubOfStudentRequest();
         studentResponse = createStubOfStudentResponse();
+        departmentDTO = createStubOfDepartmentDTO();
         studentDTO = createStubOfStudentDTO();
+    }
+
+    private DepartmentDTO createStubOfDepartmentDTO() {
+        DepartmentDTO localDepartmentDTO = DepartmentDTO.builder()
+                .departmentName("Mathematics Department").build();
+        return localDepartmentDTO;
     }
 
     @DisplayName("This unit test case, tests the basic flow of the student registration API to check when a student is provided" +
@@ -71,6 +82,7 @@ public class StudentManagementControllerTests {
     public void givenStudentRequest_whenRegisterStudent_thenSendSavedStudent() throws Exception {
         // where the mockbean of instance model mapper is called for conversion of POJO(s)
         when(modelMapper.map(studentRequest, StudentDTO.class)).thenReturn(studentDTO);
+        when(modelMapper.map(studentRequest.getDepartmentRequest(), DepartmentDTO.class)).thenReturn(departmentDTO);
         when(modelMapper.map(studentDTO, StudentResponse.class)).thenReturn(studentResponse);
         // given also that we make a call to the registerCustomer of mockbean of
         // customerOnboardingService with the stubbed CustomerDTO
@@ -89,25 +101,14 @@ public class StudentManagementControllerTests {
         ResultActions response = mockMvc.perform(mockRequest);
 
         // then - verify the result with the new bunch of assert statements.
-        response.andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", notNullValue()))
-                .andExpect(jsonPath("$.studentName", is(studentResponse.getStudentName())))
-                .andExpect(jsonPath("$.departmentName", is(studentResponse.getDepartmentName())))
-                .andExpect(jsonPath("$.course", is(studentResponse.getCourse())))
-                .andExpect(jsonPath("$.specialization", is(studentResponse.getSpecialization())))
-                .andExpect(jsonPath("$.percentage", is(studentResponse.getPercentage())));
+        // these are the new asserts in Junit-5 wrapped with Spring Boot Test
+        // for the web layer - which provides validity of the response object
+        // returned from service or business layer
+        assertThatResponseObjectHasValidData(response, studentResponse);
 
-        assertThatStudentRequestAndResponseHasSameValuesInFields();
+        assertThatStudentRequestAndResponseHasSameValuesInFields(studentRequest, studentResponse);
     }
 
-    private void assertThatStudentRequestAndResponseHasSameValuesInFields() {
-        assertEquals(studentRequest.getStudentName(), studentResponse.getStudentName());
-        assertEquals(studentRequest.getDepartmentRequest()
-                .getDepartmentName(), studentResponse.getDepartmentName());
-        assertEquals(studentRequest.getCourse(), studentResponse.getCourse());
-        assertEquals(studentRequest.getPercentage(), studentResponse.getPercentage());
-        assertEquals(studentRequest.getSpecialization(), studentResponse.getSpecialization());
-    }
+
 
 }

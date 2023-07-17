@@ -1,9 +1,11 @@
 package com.kanini.studentmanagement.controller;
 
+import com.kanini.studentmanagement.dto.request.DepartmentRequest;
 import com.kanini.studentmanagement.dto.request.StudentRequest;
 import com.kanini.studentmanagement.dto.response.StudentResponse;
 import com.kanini.studentmanagement.model.business.service.StudentManagementService;
 import com.kanini.studentmanagement.model.business.sexception.StudentBusinessException;
+import com.kanini.studentmanagement.model.dto.intermediate.DepartmentDTO;
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -48,6 +50,8 @@ public class StudentManagementController {
 
     private StudentDTO mapToStudentDTOFromRequest(StudentRequest studentRequest) {
         StudentDTO studentDTO = modelMapper.map(studentRequest, StudentDTO.class);
+        DepartmentDTO departmentDTO = modelMapper.map(studentRequest.getDepartmentRequest(), DepartmentDTO.class);
+        studentDTO.setDepartmentDTO(departmentDTO);
         return studentDTO;
     }
 

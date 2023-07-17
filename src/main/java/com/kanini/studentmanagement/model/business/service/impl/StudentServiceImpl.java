@@ -109,6 +109,7 @@ public class StudentServiceImpl implements StudentManagementService {
 
     private Audit createAuditingDataForEntities() {
         if(auditCreationCounter >= 1){
+            auditCreationCounter = 0;
             return audit;
         }
         auditCreationCounter++;
@@ -125,8 +126,6 @@ public class StudentServiceImpl implements StudentManagementService {
         localDepartment.setAudit(audit);
         audit.setDepartment(localDepartment);
     }
-
-
 
     private void createOneToManyStudentDepartmentRelationship(StudentDTO studentDTO, Student localStudent) {
         department = modelMapper.map(studentDTO.getDepartmentDTO(), Department.class);

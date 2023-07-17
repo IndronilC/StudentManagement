@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.stereotype.Component;
 
-
+@Component
 @Data
 @Builder
 @AllArgsConstructor

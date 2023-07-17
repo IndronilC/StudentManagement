@@ -7,12 +7,16 @@ import com.kanini.studentmanagement.dto.response.StudentResponse;
 import com.kanini.studentmanagement.model.business.service.StudentManagementService;
 import com.kanini.studentmanagement.model.data.repository.StudentManagementRepository;
 
+import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.assertThatResponseObjectHasValidData;
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentRequest;
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentResponse;
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.getContent;
+import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.assertThatStudentRequestAndResponseHasSameValuesInFields;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,11 +29,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -48,19 +49,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class StudentManagementControllerIntegrationTests {
     @Autowired
     MockMvc mockMvc;
-
     @Autowired
     ObjectMapper objectMapper;
-
     @Autowired
     StudentManagementService studentService;
-
     @Autowired
     StudentManagementRepository studentManagementRepository;
-
     @Autowired
     StudentRequest studentRequest;
-
     @Autowired
     StudentResponse studentResponse;
 
@@ -105,16 +101,18 @@ public class StudentManagementControllerIntegrationTests {
         ResultActions response = mockMvc.perform(mockRequest);
 
         // then - verify the result with the new bunch of assert statements.
-        response.andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", notNullValue()))
-                .andExpect(jsonPath("$.studentName", is(studentResponse.getStudentName())))
-                .andExpect(jsonPath("$.departnmentName", is(studentResponse.getDepartmentName())))
-                .andExpect(jsonPath("$.course", is(studentResponse.getCourse())))
-                .andExpect(jsonPath("$.specialization", is(studentResponse.getSpecialization())))
-                .andExpect(jsonPath("$.percentage", is(studentResponse.getPercentage())));
+        // These are Junit-5 asserts for the Controller layer or Web Layer
+        // They check whether the response has valid values for all the fields
+        assertThatResponseObjectHasValidData(response, studentResponse);
 
+        // This does the actual assert check for equality for Request and Response
+        // without which it is not possible to close this integration test case
+        assertThatStudentRequestAndResponseHasSameValuesInFields(studentRequest, studentResponse);
     }
+
+
+
+
 
 
 }

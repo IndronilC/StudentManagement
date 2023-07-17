@@ -7,6 +7,14 @@ import com.kanini.studentmanagement.dto.request.StudentRequest;
 import com.kanini.studentmanagement.dto.response.StudentResponse;
 import com.kanini.studentmanagement.model.dto.intermediate.DepartmentDTO;
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
+import org.springframework.test.web.servlet.ResultActions;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class StudentManagementTestUtil {
     protected StudentManagementTestUtil(){}
@@ -53,5 +61,27 @@ public class StudentManagementTestUtil {
 
         return studentDTO;
      }
+
+    public static void assertThatStudentRequestAndResponseHasSameValuesInFields(
+            StudentRequest studentRequest, StudentResponse studentResponse) {
+        assertEquals(studentRequest.getStudentName(), studentResponse.getStudentName());
+        assertEquals(studentRequest.getDepartmentRequest()
+                .getDepartmentName(), studentResponse.getDepartmentName());
+        assertEquals(studentRequest.getCourse(), studentResponse.getCourse());
+        assertEquals(studentRequest.getPercentage(), studentResponse.getPercentage());
+        assertEquals(studentRequest.getSpecialization(), studentResponse.getSpecialization());
+    }
+
+    public static void assertThatResponseObjectHasValidData(
+            ResultActions response, StudentResponse studentResponse) throws Exception {
+        response.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", notNullValue()))
+                .andExpect(jsonPath("$.studentName", is(studentResponse.getStudentName())))
+                .andExpect(jsonPath("$.departmentName", is(studentResponse.getDepartmentName())))
+                .andExpect(jsonPath("$.course", is(studentResponse.getCourse())))
+                .andExpect(jsonPath("$.specialization", is(studentResponse.getSpecialization())))
+                .andExpect(jsonPath("$.percentage", is(studentResponse.getPercentage())));
+    }
 
 }
