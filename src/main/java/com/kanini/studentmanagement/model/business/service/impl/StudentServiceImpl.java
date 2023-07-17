@@ -48,12 +48,18 @@ public class StudentServiceImpl implements StudentManagementService {
         StudentDTO savedStudentDTO = null;
         try {
             student = populateStudentEntityFromDTO(studentDTO);
-            Student savedStudent = studentManagementRepository.save(student);
+            Student savedStudent = createAndsaveStudentInDatabaseAndReturn();
             savedStudentDTO = populateStudentDTOFromEntity(savedStudent);
         } catch (Exception e) {
             throw new StudentBusinessException(e.getMessage(), e.getCause());
         }
         return savedStudentDTO;
+    }
+
+    private Student createAndsaveStudentInDatabaseAndReturn() {
+        Audit savedAudit = auditRepository.save(audit);
+        Student savedStudent = studentManagementRepository.save(student);
+        return savedStudent;
     }
 
     private StudentDTO populateStudentDTOFromEntity(Student savedStudent) {
@@ -89,7 +95,7 @@ public class StudentServiceImpl implements StudentManagementService {
     private void addAuditDataMembersToStudentEntity(Student localStudent) {
         Audit audit = createAuditingDataForEntities();
         localStudent.setAudit(audit);
-        audit.setStudent(student);
+        audit.setStudent(localStudent);
     }
 
     private Audit createAuditingDataForEntities() {
@@ -101,7 +107,6 @@ public class StudentServiceImpl implements StudentManagementService {
         audit.setCreatedBy(StudentManagementUtil.setCreatingUser());
         audit.setCreatedAt(StudentManagementUtil.createCurrentDateTime());
         audit.setUpdatedAt(StudentManagementUtil.createCurrentDateTime());
-        Audit savedAudit = auditRepository.save(audit);
         return audit;
     }
 
@@ -109,7 +114,7 @@ public class StudentServiceImpl implements StudentManagementService {
         Department localDepartment = localOptionalDepartment.get();
         Audit audit = createAuditingDataForEntities();
         localDepartment.setAudit(audit);
-        audit.setDepartment(department);
+        audit.setDepartment(localDepartment);
     }
 
 
