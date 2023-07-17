@@ -6,6 +6,7 @@ import com.kanini.studentmanagement.model.data.repository.StudentManagementRepos
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
 
 import static com.kanini.studentmanagement.common.util.StudentManagementTestUtil.createStubOfStudentDTO;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -79,9 +80,22 @@ public class StudentManagementServicesIntegrationTests {
     @Test
     public void givenStudentObject_whenRegisterStudentInDatabase_thenReturnedSavedStudent() throws Exception{
         StudentDTO savedStudentDTO = studentManagementService.registerStudent(studentDTO);
+        assertCreateStudentIsCorrectlyDone(savedStudentDTO);
     }
 
+    private void assertCreateStudentIsCorrectlyDone(StudentDTO savedStudentDTO) {
+        assertThat(savedStudentDTO).isNotNull();
+        assertThat(savedStudentDTO.getStudentName()).isEqualTo(studentDTO.getStudentName());
+        assertThat(savedStudentDTO.getCourse()).isEqualTo(studentDTO.getCourse());
+        assertThat(savedStudentDTO.getPercentage()).isEqualTo(studentDTO.getPercentage());
+        assertThat(savedStudentDTO.getSpecialization()).isEqualTo(studentDTO.getSpecialization());
+        assertThatCreatedStudentHasTheCorrectDepartmentValues(savedStudentDTO);
+    }
 
+    private void assertThatCreatedStudentHasTheCorrectDepartmentValues(StudentDTO savedStudentDTO) {
+        assertThat(savedStudentDTO.getDepartmentDTO().getDepartmentName())
+                .isEqualTo(studentDTO.getDepartmentDTO().getDepartmentName());
+    }
 
 
 }

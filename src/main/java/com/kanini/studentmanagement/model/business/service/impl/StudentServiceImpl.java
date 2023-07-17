@@ -8,6 +8,7 @@ import com.kanini.studentmanagement.model.data.entity.Department;
 import com.kanini.studentmanagement.model.data.entity.Student;
 import com.kanini.studentmanagement.model.data.repository.AuditRepository;
 import com.kanini.studentmanagement.model.data.repository.StudentManagementRepository;
+import com.kanini.studentmanagement.model.dto.intermediate.DepartmentDTO;
 import com.kanini.studentmanagement.model.dto.intermediate.StudentDTO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -64,13 +65,21 @@ public class StudentServiceImpl implements StudentManagementService {
 
     private StudentDTO populateStudentDTOFromEntity(Student savedStudent) {
         StudentDTO localSavedStudentDTO = modelMapper.map(savedStudent, StudentDTO.class);
+        setDepartmentDTOToSavedStudentDTO(savedStudent, localSavedStudentDTO);
         logStudnetDTOConversionFromStudentEntity(savedStudent, localSavedStudentDTO);
         return localSavedStudentDTO;
     }
 
+    private void setDepartmentDTOToSavedStudentDTO(Student savedStudent, StudentDTO paramSavedStudentDTO) {
+        DepartmentDTO localSavedDepartmentDTO = modelMapper.map(savedStudent
+                        .getDepartments().stream().findFirst().get(), DepartmentDTO.class);
+        paramSavedStudentDTO.setDepartmentDTO(localSavedDepartmentDTO);
+    }
+
     private void logStudnetDTOConversionFromStudentEntity(
             Student savedStudent, StudentDTO localSavedStudentDTO) {
-        log.info("StudentDTO converted from saved Student = {} -> {}", localSavedStudentDTO, savedStudent);
+        log.info("StudentDTO converted from saved Student and Department = {} -> {} -> {} ",
+                localSavedStudentDTO, savedStudent, savedStudent.getDepartments().stream().findFirst().get());
     }
 
     private Student populateStudentEntityFromDTO(StudentDTO studentDTO) {
